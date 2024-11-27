@@ -107,12 +107,10 @@ class BucketStorage {
   static Future<List<File>> pickImages() async {
     try {
       final ImagePicker picker = ImagePicker();
-      final List<XFile>? images = await picker.pickMultiImage();
+      final List<XFile> images = await picker.pickMultiImage();
 
-      if (images != null) {
-        return images.map((xfile) => File(xfile.path)).toList();
-      }
-    } catch (e) {
+      return images.map((xfile) => File(xfile.path)).toList();
+        } catch (e) {
       debugPrint("Error picking images: $e");
     }
     return [];
