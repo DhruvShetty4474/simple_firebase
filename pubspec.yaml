@@ -1,10 +1,10 @@
 name: simple_firebase
 description: "A qol package to simplify the process of handleing firebase."
 version: 0.0.1
-homepage:
+homepage: "https://github.com/NoirsCodingCorner/simple_firebase"
 
 environment:
-  sdk: ^3.7.0-118.0.dev
+  sdk: ^3.0.0
   flutter: ">=1.17.0"
 
 dependencies:
