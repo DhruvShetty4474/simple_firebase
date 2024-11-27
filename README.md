@@ -1,3 +1,17 @@
+## Feature Overview
+| Component          | Supported Platforms            | Supported Methods                                        |
+|--------------------|---------------------------------|----------------------------------------------------------|
+| **Authentication** | iOS, Android, Web, Windows*     | Email/Password, Google Sign-In, Register, Sign Out       |
+| **Firestore**      | iOS, Android, Web, Windows*     | Create, Read, Update, Delete, Observe Real-time Changes   |
+| **Realtime DB**    | iOS, Android, Web, Windows*     | Create, Read, Update, Delete, Observe Real-time Changes   |
+| **Storage**        | iOS, Android, Web, Windows*     | Upload Single/Multiple Images, Get Download URLs, Check File Existence |
+
+*Works but has some issues from the original Firebase SDKs, mainly starting to observe the Firestore values prints a waarning.
+
+The web support for the RealtimeDatabase is not provided by firebase defaultly so datapulling is necessary. Use only when needed and be careful with refreshtime.
+
+
+
 ## Configuration
 
 Before using Firebase Simplifier, ensure that your Firebase project is properly set up and configured in your Flutter application.
@@ -99,30 +113,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 final Auth auth = Auth();
 
 // Sign in with email and password
-Future<void> signIn(String email, String password) async {
-  User? user = await auth.signInWithEmail(email, password);
-  if (user != null) {
-    print('Signed in as ${user.email}');
-  } else {
-    print('Sign-in failed');
-  }
-}
+auth.signInWithEmail(email, password).then((user) => print(user?.email ?? 'Sign-in failed'));
 
 // Register a new user
-Future<void> register(String email, String password) async {
-  User? user = await auth.registerWithEmail(email, password);
-  if (user != null) {
-    print('Registered user: ${user.email}');
-  } else {
-    print('Registration failed');
-  }
-}
+auth.registerWithEmail(email, password).then((user) => print(user?.email ?? 'Registration failed'));
 
 // Sign out
-Future<void> signOut() async {
-  await auth.signOut();
-  print('User signed out');
-}
+auth.signOut().then((_) => print('User signed out'));
 ```
 
 #### Google Sign-In
@@ -135,14 +132,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 final Auth auth = Auth();
 
 // Sign in with Google
-Future<void> signInWithGoogle() async {
-  User? user = await auth.signInWithGoogle();
-  if (user != null) {
-    print('Signed in with Google as ${user.email}');
-  } else {
-    print('Google sign-in canceled or failed');
-  }
-}
+auth.signInWithGoogle().then((user) => print(user?.email ?? 'Google sign-in failed'));
 ```
 
 ### Firestore
@@ -154,45 +144,16 @@ import 'package:firebase_simplifier/firebase_simplifier.dart';
 final SimpleFirestore firestore = SimpleFirestore();
 
 // Write data to Firestore
-Future<void> writeFirestoreData(String collection, String docId, Map<String, dynamic> data) async {
-  bool success = await firestore.writeData('$collection/$docId', data);
-  if (success) {
-    print('Data written to Firestore successfully.');
-  } else {
-    print('Failed to write data to Firestore.');
-  }
-}
+firestore.writeData('collection/doc', data).then((success) => print(success ? 'Write success' : 'Write failed'));
 
 // Read data from Firestore
-Future<Map<String, dynamic>?> readFirestoreData(String collection, String docId) async {
-  Map<String, dynamic>? data = await firestore.getData('$collection/$docId');
-  if (data != null) {
-    print('Data retrieved from Firestore: $data');
-  } else {
-    print('No data found at the specified path.');
-  }
-  return data;
-}
+firestore.getData('collection/doc').then((data) => print(data ?? 'No data found'));
 
 // Delete data from Firestore
-Future<void> deleteFirestoreData(String collection, String docId) async {
-  bool success = await firestore.deleteData('$collection/$docId');
-  if (success) {
-    print('Data deleted from Firestore successfully.');
-  } else {
-    print('Failed to delete data from Firestore.');
-  }
-}
+firestore.deleteData('collection/doc').then((success) => print(success ? 'Delete success' : 'Delete failed'));
 
 // Create a unique document
-Future<void> createUniqueFirestoreDoc(String collection, Map<String, dynamic> data) async {
-  String? docId = await firestore.createUniqueDocument(collection, data);
-  if (docId != null) {
-    print('Document created with ID: $docId');
-  } else {
-    print('Failed to create document.');
-  }
-}
+firestore.createUniqueDocument('collection', data).then((docId) => print(docId ?? 'Create failed'));
 ```
 
 ### Realtime Database (RTDB)
@@ -205,53 +166,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 final RTDB rtdb = RTDB(currentUser, 'https://your-database-url.firebaseio.com/');
 
 // Write data to RTDB
-Future<void> writeRTDBData(String path, Map<String, dynamic> data) async {
-  bool success = await rtdb.writeData(path, data);
-  if (success) {
-    print('Data written to RTDB successfully.');
-  } else {
-    print('Failed to write data to RTDB.');
-  }
-}
+rtdb.writeData('path', data).then((success) => print(success ? 'Write success' : 'Write failed'));
 
 // Read data from RTDB
-Future<dynamic> readRTDBData(String path) async {
-  dynamic data = await rtdb.getData(path);
-  if (data != null) {
-    print('Data retrieved from RTDB: $data');
-  } else {
-    print('No data found at the specified path.');
-  }
-  return data;
-}
+rtdb.getData('path').then((data) => print(data ?? 'No data found'));
 
 // Update data in RTDB
-Future<void> updateRTDBData(String path, Map<String, dynamic> data) async {
-  bool success = await rtdb.updateData(path, data);
-  if (success) {
-    print('Data updated in RTDB successfully.');
-  } else {
-    print('Failed to update data in RTDB.');
-  }
-}
+rtdb.updateData('path', data).then((success) => print(success ? 'Update success' : 'Update failed'));
 
 // Delete data from RTDB
-Future<void> deleteRTDBData(String path) async {
-  bool success = await rtdb.deleteData(path);
-  if (success) {
-    print('Data deleted from RTDB successfully.');
-  } else {
-    print('Failed to delete data from RTDB.');
-  }
-}
+rtdb.deleteData('path').then((success) => print(success ? 'Delete success' : 'Delete failed'));
 
 // Observe real-time data changes
-Future<void> observeRTDBValue(String path) async {
-  ValueNotifier<dynamic> notifier = await rtdb.observeRealtimeDBValue<dynamic>(path);
-  notifier.addListener(() {
-    print('Real-time data at $path updated: ${notifier.value}');
-  });
-}
+rtdb.observeRealtimeDBValue('path').then((notifier) => notifier.addListener(() => print(notifier.value)));
 ```
 
 ### Firebase Storage
@@ -264,46 +191,19 @@ import 'dart:io';
 final BucketStorage storage = BucketStorage();
 
 // Upload a single image
-Future<void> uploadSingleImage(File imageFile, String userId) async {
-  String? imageUrl = await storage.uploadImage(imageFile, userId);
-  if (imageUrl != null) {
-    print('Image uploaded successfully: $imageUrl');
-  } else {
-    print('Failed to upload image.');
-  }
-}
+storage.uploadImage(file, userId).then((url) => print(url ?? 'Upload failed'));
 
 // Upload multiple images
-Future<void> uploadMultipleImages(List<File> imageFiles, String userId) async {
-  List<String> imageUrls = await storage.uploadMultipleImages(imageFiles, userId);
-  print('Uploaded image URLs: $imageUrls');
-}
+storage.uploadMultipleImages(files, userId).then((urls) => print(urls));
 
 // Get download URL for an image
-Future<void> getImageDownloadUrl(String filePath) async {
-  String? url = await storage.getImageUrl(filePath);
-  if (url != null) {
-    print('Download URL: $url');
-  } else {
-    print('Failed to retrieve download URL.');
-  }
-}
+storage.getImageUrl('path').then((url) => print(url ?? 'URL not found'));
 
 // Check if a file exists
-Future<void> checkFileExists(String filePath) async {
-  bool exists = await storage.checkIfFileExists(filePath);
-  print(exists ? 'File exists.' : 'File does not exist.');
-}
+storage.checkIfFileExists('path').then((exists) => print(exists ? 'File exists' : 'File does not exist'));
 
 // Pick images using ImagePicker
-Future<void> pickAndUploadImages(String userId) async {
-  List<File> images = await storage.pickImages();
-  if (images.isNotEmpty) {
-    await uploadMultipleImages(images, userId);
-  } else {
-    print('No images selected.');
-  }
-}
+storage.pickImages().then((images) => print(images.isNotEmpty ? 'Images picked' : 'No images selected'));
 ```
 
 ## Examples
@@ -519,7 +419,7 @@ Comprehensive documentation is provided within the package to assist you in unde
 1. **Initialize Firebase**: Ensure Firebase is initialized in your `main.dart`.
 2. **Configure Firebase**: Add the necessary configuration files (`google-services.json`, `GoogleService-Info.plist`).
 3. **Use Helper Classes**: Instantiate and utilize the helper classes (`Auth`, `SimpleFirestore`, `RTDB`, `BucketStorage`) as demonstrated in the usage examples.
-
+   
 For detailed API references, refer to the inline documentation within each class file.
 
 ## Contributing
@@ -553,7 +453,6 @@ git push origin feature/YourFeatureName
 
 - Follow the existing code style and structure.
 - Ensure that all new features are well-documented.
-- Write unit tests for new functionalities.
 
 ## License
 
@@ -563,7 +462,8 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For any questions or support, please open an issue on the GitHub repository or contact youremail@example.com.
+For any questions or support, please ask the flutter community over on discord. They have been a great support and will help you out for certain.
+https://discord.com/invite/rflutterdev
 
 ---
 
@@ -581,7 +481,3 @@ For any questions or support, please open an issue on the GitHub repository or c
 Check out the example project demonstrating how to integrate Firebase Simplifier into a Flutter application.
 
 ---
-
-**Note**: Replace placeholders like `yourusername`, `firebase_simplifier`, `youremail@example.com`, and repository links with your actual information.
-""";
-```
