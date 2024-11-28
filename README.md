@@ -44,27 +44,6 @@ Before using Firebase Simplifier, ensure that your Firebase project is properly 
 - Register your app and download the `GoogleService-Info.plist` file.
 - Place the `GoogleService-Info.plist` file in the `ios/Runner/` directory of your Flutter project.
 
-#### Web:
-
-- If targeting web platforms, add the Firebase configuration object in your `web/index.html`:
-
-```html
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "your-api-key",
-    authDomain: "your-auth-domain",
-    databaseURL: "https://your-database-url.firebaseio.com",
-    projectId: "your-project-id",
-    storageBucket: "your-storage-bucket",
-    messagingSenderId: "your-sender-id",
-    appId: "your-app-id"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
-```
 
 ### 3. Initialize Firebase in Your App
 

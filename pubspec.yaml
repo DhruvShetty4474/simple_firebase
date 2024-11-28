@@ -1,6 +1,6 @@
 name: simple_firebase
 description: "A qol package to simplify the process of handling firebase."
-version: 0.0.1
+version: 0.0.2
 homepage: "https://github.com/NoirsCodingCorner/simple_firebase"
 
 environment:
