@@ -14,12 +14,13 @@ class SimpleFirestore {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final List<StreamSubscription> streams = [];
 
-  /// Checks if the device has an active internet connection.
+  /// Checks if the device has an active internet connection via pinging cloudFlare's 1.1.1.1
   ///
   /// Returns `true` if online, `false` if offline or if an error occurs.
   Future<bool> isOnline() async {
     try {
-      final response = await http.get(Uri.parse('https://www.google.com'));
+      // Ping a globally available webpage like CloudFlare's 1.1.1.1
+      final response = await http.get(Uri.parse('https://1.1.1.1'));
       return response.statusCode == 200;
     } on SocketException {
       debugPrint('No internet connection.');
@@ -30,27 +31,36 @@ class SimpleFirestore {
     }
   }
 
-  /// Writes data to a Firestore document.
+  /// Writes data to a Firestore document via set
   ///
   /// - [documentPath]: Path to the Firestore document.
   /// - [data]: The data to write.
   /// - [merge]: Whether to merge data with existing content (default: `true`).
   ///
   /// Returns `true` if the operation is successful, `false` otherwise.
-  Future<bool> writeData(String documentPath, Map<String, dynamic> data, {bool merge = true}) async {
+  Future<bool> writeData(String documentPath, Map<String, dynamic> data, {bool merge = false}) async {
     try {
-      final documentSnapshot = await _firestore.doc(documentPath).get();
-
-      if (documentSnapshot.exists) {
-        await _firestore.doc(documentPath).update(data);
-        debugPrint('Document updated successfully.');
-      } else {
-        await _firestore.doc(documentPath).set(data, SetOptions(merge: merge));
-        debugPrint('Document created and data set successfully.');
-      }
+      await _firestore.doc(documentPath).set(data, SetOptions(merge: merge));
+      debugPrint('Document created or merged successfully.');
       return true;
     } catch (e) {
-      debugPrint('Error writing data to Firestore: $e');
+      debugPrint('Error writing data to Firestore with set: $e');
+      return false;
+    }
+  }
+
+  /// Updates data in Firestore for an existing document using `update`.
+  /// - [documentPath]: Path to the Firestore document.
+  /// - [data]: The data to update.
+  ///
+  /// Returns `true` if the operation is successful, `false` otherwise.
+  Future<bool> updateData(String documentPath, Map<String, dynamic> data) async {
+    try {
+      await _firestore.doc(documentPath).update(data);
+      debugPrint('Document updated successfully.');
+      return true;
+    } catch (e) {
+      debugPrint('Error updating data in Firestore: $e');
       return false;
     }
   }
