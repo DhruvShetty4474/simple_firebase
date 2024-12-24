@@ -156,6 +156,66 @@ class Auth {
   }
 }
 
+
+///og
+///Phone Authentication is working without enabling the billing option for that we need to add a
+/// dummy phone number in the phone number for testing option and as well as the otp( need to
+/// remember the otp for login/register) as in testing
+/// it can not send the otp through sms and will work both on the emulator and on the real phone.
+///
+/// To enable the OTP to receive on sms we need to enable SHA-1 and SHA-256 keys in your project settings
+/// ( you can do that by following the steps in "https://docs.fluxbuilder.com/sha-1-and-sha-256/").
+/// You can only receive OTP in SMS on your real device not in the emulator.
+///
+/// The Login and Register has the same logic.
+class RegisterationPhoneAuth {
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void registerPhoneNumber( BuildContext context, TextEditingController phoneController) async {
+    await _auth.verifyPhoneNumber(
+      phoneNumber: "+91"+phoneController.text,
+      verificationCompleted: (PhoneAuthCredential credential) {},
+      verificationFailed: (FirebaseAuthException e) {
+        debugPrint('Verification failed: ${e.message}');
+      },
+      codeSent: (String verificationId, int? forceResendingToken) {
+        /// Here you can navigate to the otp page and pass the verificationId to the otp page...
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => Otp(verificationId: verificationId),
+        //   ),
+        // );
+
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+    );
+  }
+
+  void otpVerification(String verificationId, String otp) async {
+    try {
+      if (otp.isEmpty) {
+        // Handle the case where the OTP is empty
+        return log('OTP is empty');
+      }
+
+
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: verificationId, smsCode: otp);
+      await _auth.signInWithCredential(credential).then((value) {
+        ///You can change the navigation here depending in if your logging in or registering.
+        // NavigationServices().navigateAndRemoveUntil('/home');
+      });
+    }catch(e){
+      log(e.toString());
+    }
+  }
+}
+
+
+
+//optimized
 /// Phone authentication class that supports both emulator and real device usage.
 ///
 /// ### Testing without billing:
